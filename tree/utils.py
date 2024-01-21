@@ -15,11 +15,17 @@ def check_ifreal(y: pd.Series) -> bool:
 
 
 def entropy(Y: pd.Series) -> float:
-    """
-    Function to calculate the entropy
-    """
-
-    pass
+    
+    # Count the occurrences of each unique value in the series
+    value_counts = Y.value_counts()
+    
+    # Calculate the probabilities of each unique value
+    probabilities = value_counts/len(Y) 
+    
+    # Calculate entropy using the formula: -sum(p_i * log2(p_i))
+    entropy_value = -np.sum(probabilities * np.log2(probabilities))
+    
+    return entropy_value
 
 
 def gini_index(Y: pd.Series) -> float:
