@@ -87,31 +87,51 @@ def information_gain(Y: pd.Series, attr: pd.Series) -> float:
 def opt_split_attribute(X: pd.DataFrame, y: pd.Series, criterion, features: pd.Series):
     """
     Function to find the optimal attribute to split about.
-    If needed you can split this function into 2, one for discrete and one for real valued features.
-    You can also change the parameters of this function according to your implementation.
 
     features: pd.Series is a list of all the attributes we have to split upon
 
     return: attribute to split upon
     """
+    best_attribute = None
+    best_info_gain = float('-inf') if criterion != 'gini' else float('inf')
 
-    # According to wheather the features are real or discrete valued and the criterion, find the attribute from the features series with the maximum information gain (entropy or varinace based on the type of output) or minimum gini index (discrete output).
+    for attribute in features:
+        # Check if the attribute has real values
+        is_real = check_if_real(X[attribute])
 
-    pass
+        # Calculate information gain based on the criterion
+        current_info_gain = information_gain(y, X[attribute])
+
+        # Update the best attribute if the current one has higher information gain
+        if (is_real and criterion == 'mse' and current_info_gain > best_info_gain) or \
+           (not is_real and criterion != 'mse' and current_info_gain > best_info_gain):
+            best_attribute = attribute
+            best_info_gain = current_info_gain
+
+    return best_attribute
 
 
 def split_data(X: pd.DataFrame, y: pd.Series, attribute, value):
     """
-    Funtion to split the data according to an attribute.
-    If needed you can split this function into 2, one for discrete and one for real valued features.
-    You can also change the parameters of this function according to your implementation.
+    Function to split the data according to an attribute.
 
     attribute: attribute/feature to split upon
     value: value of that attribute to split upon
 
-    return: splitted data(Input and output)
+    return: splitted data (Input and output)
     """
+    # Check if the attribute has real values
+    is_real = check_if_real(X[attribute])
 
-    # Split the data based on a particular value of a particular attribute. You may use masking as a tool to split the data.
+    if is_real:
+        # For real-valued attributes, split using inequality
+        mask = X[attribute] <= value
+    else:
+        # For discrete attributes, split using equality
+        mask = X[attribute] == value
 
-    pass
+    # Return the splitted data
+    X_subset = X[mask]
+    y_subset = y[mask]
+
+    return X_subset, y_subset
